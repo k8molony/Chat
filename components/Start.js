@@ -1,13 +1,13 @@
-import React from 'react';
-import { View, Text, TextInput, Button, ImageBackground, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { Component } from 'react';
+import { View, Text, TextInput, ImageBackground, StyleSheet, TouchableOpacity } from 'react-native';
 
 const backgroundColors ={
   black: { backgroundColor: "#090C08" },
-  purple: { backgroundColor: "#474056" },
-  blue: { backgroundColor: "#8A95A5" },
-  green: { backgroundColor: "#B9C6AE" }
+  purple: { backgroundColor: "#a97cb0" },
+  blue: { backgroundColor: "#7c92b0" },
+  green: { backgroundColor: "#aeb07c" }
 }
-export default class Start extends React.Component {
+export default class Start extends Component {
   constructor(props) {
     super(props);
     this.state = { name: "", color: "" };
@@ -30,7 +30,7 @@ export default class Start extends React.Component {
               placeholder='Type your name ...'
             />
             <View>
-              <Text style={styles.text}>Choose your background color</Text>
+              <Text style={styles.text}>Choose your background color:</Text>
               <View style={[styles.colors, styles.colorWrapper]}>
                 <TouchableOpacity 
                   style={[
@@ -82,11 +82,18 @@ export default class Start extends React.Component {
                 />
               </View>
             </View>
-            <Button
-              title="Go to Chat"
-              onPress={() => this.props.navigation.navigate('Chat', { name: this.state.name })}
+            <TouchableOpacity
               style={styles.button}
-            />
+              title="Start Chatting"
+              onPress={() => 
+                this.props.navigation.navigate('Chat', { 
+                  name: this.state.name,
+                  color: this.state.color
+                })
+              }
+            >
+              <Text style={styles.buttonText}>Start Chatting</Text>
+            </TouchableOpacity>
           </View>
         </ImageBackground>
       </View>
@@ -111,10 +118,12 @@ const styles = StyleSheet.create({
   },
 
   title:{
-    fontSize: 45,
+    fontSize: 60,
     fontWeight: "600",
     color: "#dbdae0",
-    textAlign: "left"
+    textAlign: "left",
+    flex: 1,
+    flexDirection: "row"
   },
 
   text: {
@@ -169,7 +178,7 @@ const styles = StyleSheet.create({
 
   buttonText: {
     padding: 10,
-    color: "#fff",
+    color: "#ffffff",
     fontSize: 16,
     fontWeight: "600"
   },
