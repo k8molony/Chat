@@ -8,6 +8,7 @@ const backgroundColors ={
   green: { backgroundColor: "#aeb07c" }
 }
 export default class Start extends Component {
+  // add name and color to the state
   constructor(props) {
     super(props);
     this.state = { name: "", color: "" };
@@ -22,13 +23,16 @@ export default class Start extends Component {
           style={styles.image}
         >
           <Text style={styles.title}>Chat</Text>
+          {/* Text box to enter user name */}
           <View style={styles.box}>
             <TextInput
               style={[styles.input, styles.text]}
               onChangeText={(name) => this.setState({ name })}
               value={this.state.text}
               placeholder='Type your name ...'
+              placeholderTextColor='#bfbbc9'
             />
+            {/* Add background selection */}
             <View>
               <Text style={styles.text}>Choose your background color:</Text>
               <View style={[styles.colors, styles.colorWrapper]}>
@@ -82,6 +86,7 @@ export default class Start extends Component {
                 />
               </View>
             </View>
+            {/* Add button to navigate to the chat screen  */}
             <TouchableOpacity
               style={styles.button}
               title="Start Chatting"
@@ -101,12 +106,13 @@ export default class Start extends Component {
   }
 }
 
+//Create styles 
 const styles = StyleSheet.create({
   nameInput: {
     fontSize: 16,
     fontWeight: "300",
     color: "#bfbbc9",
-    opacity: 50
+    opacity: 50,
   },
 
   image: {
@@ -161,7 +167,7 @@ const styles = StyleSheet.create({
   input: {
     height: 50,
     width: "88%",
-    borderColor: "gray",
+    borderColor: "#bfbbc9",
     color: "#bfbbc9",
     borderWidth: 2,
     borderRadius: 20
