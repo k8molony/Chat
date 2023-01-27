@@ -88,6 +88,10 @@ export default class Start extends Component {
             </View>
             {/* Add button to navigate to the chat screen  */}
             <TouchableOpacity
+              accessible={true}
+              accessibilityLabel="start chatting"
+              accessibilityHint="Lets you move into the chat screen"
+              accessibilityRole="button"
               style={styles.button}
               title="Start Chatting"
               onPress={() => 
@@ -168,7 +172,7 @@ const styles = StyleSheet.create({
     height: 50,
     width: "88%",
     borderColor: "#bfbbc9",
-    color: "#bfbbc9",
+    color: "#050505",
     borderWidth: 2,
     borderRadius: 20
   },
