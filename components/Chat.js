@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { View, Platform, KeyboardAvoidingView } from 'react-native';
-import { Bubble, GiftedChat } from 'react-native-gifted-chat';
+import { Bubble, GiftedChat, InputToolbar } from 'react-native-gifted-chat';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import NetInfo from '@react-native-community/netinfo';
 
 const firebase = require('firebase');
 require('firebase/firestore');
@@ -33,9 +36,31 @@ export default class Chat extends Component {
     this.referenceChatMessages = firebase.firestore().collection("messages");
   }
 
+  async getMessages() {
+    let messages = '';
+    try {
+      messages = await AsyncStorage.getItem('messages') || [];
+      this.setState({
+        messages: JSON.parse(messages)
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
   componentDidMount(){
     //Set the name property to be included in the navigation bar
     let name = this.props.route.params.name;
+    this.props.navigation.setOptions({ title: name });
+    this.getMessages();
+
+    NetInfo.fetch().then((connection) => {
+      if (connection.isConnected) {
+        this.setState({ isConnected: true });
+      } else {
+        this.setState({ isConnected: false });
+      }
+    });
 
     // set the state with a static message
       this.setState({
@@ -49,14 +74,9 @@ export default class Chat extends Component {
         ],
       });
 
-      this.props.navigation.setOptions({ title: name });
-
       this.referenceChatMessages = firebase
         .firestore()
-        .collection('messages')
-      this.unsubscribe = this.referenceChatMessages.onSnapshot(
-        this.onCollectionUpdate
-        );
+        .collection('messages');
 
       this.authUnsubscribe = firebase.auth().onAuthStateChanged((user) => {
         if (!user) {
@@ -66,10 +86,10 @@ export default class Chat extends Component {
         this.setState({
           uid: user?.uid,
           messages: [],
-          // user: {
-          //   _id: user.uid,
-          //   name: name
-          // },
+          user: {
+            _id: user.uid,
+            name: name
+          },
         });
 
         this.unsubscribe = this.referenceChatMessages
@@ -85,6 +105,14 @@ export default class Chat extends Component {
     this.authUnsubscribe();
   }
 
+  async saveMessages() {
+    try {
+      await AsyncStorage.setItem('messages', JSON.stringify(this.state.messages));
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
   // appends messages so that new messages can be added without losing previous messages
   onSend(messages = []) {
     this.setState
@@ -93,6 +121,7 @@ export default class Chat extends Component {
       }),
       () => {
         this.addMessage();
+        this.saveMessages();
       }
     );
   }
@@ -107,6 +136,17 @@ export default class Chat extends Component {
       user: message.user
     });
   };
+
+  async deleteMessages() {
+    try {
+      await AsyncStorage.removeItem("messages");
+      this.setState({
+        messages: [],
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
 
   onCollectionUpdate = (querySnapshot) => {
     const messages = [];
@@ -129,6 +169,17 @@ export default class Chat extends Component {
       messages
     });
   };
+
+  renderInputToolbar(props) {
+    if (this.state.isConnected == false) {
+    } else {
+      return(
+        <InputToolbar
+        {...props}
+        />
+      );
+    }
+  }
 
   // Bubble customization
   renderBubble(props) {
