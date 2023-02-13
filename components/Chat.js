@@ -39,7 +39,8 @@ export default class Chat extends Component {
   async getMessages() {
     let messages = '';
     try {
-      messages = await AsyncStorage.getItem('messages') || [];
+      messages = (await AsyncStorage.getItem('messages')) || [];
+      // console.log("called set state for messages", messages);
       this.setState({
         messages: JSON.parse(messages)
       });
@@ -57,42 +58,31 @@ export default class Chat extends Component {
     NetInfo.fetch().then((connection) => {
       if (connection.isConnected) {
         this.setState({ isConnected: true });
+        console.log('online');
       } else {
         this.setState({ isConnected: false });
+        console.log('offline');
       }
     });
 
-    // set the state with a static message
-      this.setState({
-        messages: [
-          {
-            _id: 2,
-            loggedInText: `${name} has entered the chat`,
-            createdAt: new Date(),
-            system: true,
-          },
-        ],
-      });
-
-      this.referenceChatMessages = firebase
+    this.referenceChatMessages = firebase
         .firestore()
         .collection('messages');
 
-      this.authUnsubscribe = firebase.auth().onAuthStateChanged((user) => {
-        if (!user) {
-          firebase.auth().signInAnonymously();
-        }
-        //update user state with current user data
-        this.setState({
-          uid: user?.uid,
-          messages: [],
-          user: {
-            _id: user.uid,
-            name: name
-          },
-        });
-
-        this.unsubscribe = this.referenceChatMessages
+    this.authUnsubscribe = firebase.auth().onAuthStateChanged((user) => {
+      if (!user) {
+        firebase.auth().signInAnonymously();
+      }
+      //update user state with current user data
+      this.setState({
+        uid: user?.uid,
+        messages: [],
+        user: {
+          _id: user.uid,
+          name: name
+        },
+      });
+      this.unsubscribe = this.referenceChatMessages
         .orderBy('createdAt', 'desc')
         .onSnapshot(this.onCollectionUpdate);
     });
@@ -126,6 +116,7 @@ export default class Chat extends Component {
     );
   }
 
+  // save message to Firestore
   addMessage = () => {
     const message = this.state.messages[0];
     this.referenceChatMessages.add({
@@ -149,6 +140,7 @@ export default class Chat extends Component {
   }
 
   onCollectionUpdate = (querySnapshot) => {
+    // if (!this.state.isConnected) return;
     const messages = [];
     //go through each document
     querySnapshot.forEach((doc) => {
@@ -170,6 +162,7 @@ export default class Chat extends Component {
     });
   };
 
+  // disables chat input while offline
   renderInputToolbar(props) {
     if (this.state.isConnected == false) {
     } else {
@@ -192,10 +185,10 @@ export default class Chat extends Component {
           },
           left: {
             backgroundColor: '#fff'
-          }
+          },
         }}
       />
-    )
+    );
   }
 
   render() {
@@ -206,6 +199,7 @@ export default class Chat extends Component {
         <GiftedChat
           renderBubble={this.renderBubble.bind(this)}
           messages={this.state.messages}
+          renderInputToolbar={this.renderInputToolbar.bind(this)}
           onSend={(messages) => this.onSend(messages)}
           user={{
             _id: this.state.uid,
