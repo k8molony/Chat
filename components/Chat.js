@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
-import { View, Platform, KeyboardAvoidingView } from 'react-native';
+import { View, Platform, KeyboardAvoidingView, Text, TouchableOpacity } from 'react-native';
 import { Bubble, GiftedChat, InputToolbar } from 'react-native-gifted-chat';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
+import CustomActions from './CustomActions';
+import MapView from 'react-native-maps';
+import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 
 const firebase = require('firebase');
 require('firebase/firestore');
@@ -19,6 +22,8 @@ export default class Chat extends Component {
         avatar: "",
         name: "",
       },
+      image: null,
+      location: null,
     };
 
     if (!firebase.apps.length) {
@@ -106,7 +111,7 @@ export default class Chat extends Component {
   // appends messages so that new messages can be added without losing previous messages
   onSend(messages = []) {
     this.setState
-      (previousState => ({
+      ((previousState) => ({
         messages: GiftedChat.append(previousState.messages, messages),
       }),
       () => {
@@ -124,7 +129,9 @@ export default class Chat extends Component {
       _id: message._id,
       text: message.text || '',
       createdAt: message.createdAt,
-      user: message.user
+      user: message.user,
+      image: message.image || null,
+      location: message.location || null,
     });
   };
 
@@ -155,6 +162,8 @@ export default class Chat extends Component {
           name: data.user.name,
           avatar: data.user.avatar || '',
         },
+        image: data.image || null,
+        location: data.location || null,
       });
     });
     this.setState({
@@ -174,6 +183,31 @@ export default class Chat extends Component {
     }
   }
 
+  renderCustomActions = (props) => {
+    return <CustomActions {...props} />;
+  };
+
+  renderCustomView (props) {
+    const { currentMessage } = props;
+    if (currentMessage.location) {
+      return (
+        <MapView
+          style={{width: 150,
+            height: 100,
+            borderRadius: 13,
+            margin: 3}}
+          region={{
+            latitude: currentMessage.location.latitude,
+            longitude: currentMessage.location.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+        />
+      );
+    }
+    return null;
+  }
+
   // Bubble customization
   renderBubble(props) {
     return (
@@ -187,6 +221,16 @@ export default class Chat extends Component {
             backgroundColor: '#fff'
           },
         }}
+        textStyle={{
+          right: {
+            color: '#090C08',
+          },
+        }}
+        timeTextStyle={{
+          right: {
+            color: '#090C08',
+          },
+        }}
       />
     );
   }
@@ -195,20 +239,30 @@ export default class Chat extends Component {
     // Set the color property as background color for the chat screen
     const { color } = this.props.route.params;
     return (
-      <View style={{ flex: 1, backgroundColor: color }}>
-        <GiftedChat
-          renderBubble={this.renderBubble.bind(this)}
-          messages={this.state.messages}
-          renderInputToolbar={this.renderInputToolbar.bind(this)}
-          onSend={(messages) => this.onSend(messages)}
-          user={{
-            _id: this.state.uid,
-            avatar: 'https://placeimg.com/140/140/any'
-,          }}
-        />
-        {/* resolve screen display on older androids */}
-        { Platform.OS === 'android' ? <KeyboardAvoidingView behavior='height' /> : null}
-      </View>
+      <ActionSheetProvider>
+        <View style={{ flex: 1, backgroundColor: color }}>
+          <Text>{this.state.loggedInText}</Text>
+          <TouchableOpacity
+            onPress={() => this.props.navigation.navigate("Welcome")}
+          ></TouchableOpacity>
+          <GiftedChat
+            renderBubble={this.renderBubble.bind(this)}
+            messages={this.state.messages}
+            renderInputToolbar={this.renderInputToolbar.bind(this)}
+            renderActions={this.renderCustomActions.bind(this)}
+            onSend={(messages) => this.onSend(messages)}
+            user={{
+              _id: this.state.uid,
+              avatar: 'https://placeimg.com/140/140/any'
+            }}
+            accessible={true}
+            accessibilityLabel="Text message input field."
+            accessibilityHint="You can type your message here.  You can send your message by pressing the button on the right."
+          />
+          {/* resolve screen display on older androids */}
+          { Platform.OS === 'android' ? <KeyboardAvoidingView behavior='height' /> : null}
+        </View>
+      </ActionSheetProvider>
     );
   }
 }
