@@ -11,11 +11,16 @@ import 'react-native-gesture-handler';
 //import screens components
 import Start from './components/Start';
 import Chat from './components/Chat';
+import CustomActions from './components/CustomActions';
 
 //Create the navigator
 const Stack = createStackNavigator();
 
-export default class App extends React.Component {
+export default class App extends Component {
+  renderCustomActions = (props) => {
+    return <CustomActions {...props} />;
+  };
+
   render() {
     return (
       <NavigationContainer>
