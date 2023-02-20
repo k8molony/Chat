@@ -4,6 +4,7 @@ import { Bubble, GiftedChat, InputToolbar } from 'react-native-gifted-chat';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
+
 import CustomActions from './CustomActions';
 import MapView from 'react-native-maps';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
@@ -22,6 +23,7 @@ export default class Chat extends Component {
         avatar: "",
         name: "",
       },
+      loggedInText: 'Please wait, you are getting logged in',
       image: null,
       location: null,
     };
@@ -86,6 +88,7 @@ export default class Chat extends Component {
           _id: user.uid,
           name: name
         },
+        loggedInText: '',
       });
       this.unsubscribe = this.referenceChatMessages
         .orderBy('createdAt', 'desc')
@@ -250,6 +253,7 @@ export default class Chat extends Component {
             messages={this.state.messages}
             renderInputToolbar={this.renderInputToolbar.bind(this)}
             renderActions={this.renderCustomActions.bind(this)}
+            renderCustomView={this.renderCustomView.bind(this)}
             onSend={(messages) => this.onSend(messages)}
             user={{
               _id: this.state.uid,
