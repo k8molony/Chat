@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import * as Permissions from 'expo-permissions';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
+import { Camera } from "expo-camera";
 import { connectActionSheet } from "@expo/react-native-action-sheet";
 
 import firebase from 'firebase';
@@ -13,9 +14,9 @@ export default class CustomActions extends Component {
   
   // let the user pick an image from device's image library
   imagePicker = async () => {
-    // ask for permission
-    const { status } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
     try {
+      // ask for permission
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status === "granted") {
         //pick image
         const result = await ImagePicker.launchImageLibraryAsync({
@@ -23,7 +24,7 @@ export default class CustomActions extends Component {
         }).catch((error) => console.log(error));
         // canceled process
         if (!result.canceled) {
-          const imageUrl = await this.uploadImageFetch(result.uri);
+          const imageUrl = await this.uploadImageFetch(result.assets[0].uri);
           this.props.onSend({ image: imageUrl });
         }
       }
@@ -34,7 +35,7 @@ export default class CustomActions extends Component {
 
   //let the user take a picture with the device's camera
   takePhoto = async () => {
-    const { status } = await Permissions.askAsync(
+    const { status } = await Camera.requestCameraPermissionsAsync(
       Permissions.CAMERA,
       Permissions.MEDIA_LIBRARY
     );
@@ -45,7 +46,7 @@ export default class CustomActions extends Component {
         }).catch((error) => console.log(error));
 
         if (!result.canceled) {
-          const imageUrl = await this.uploadImageFetch(result.uri);
+          const imageUrl = await this.uploadImageFetch(result.assets[0].uri);
           this.props.onSend({ image: imageUrl });
         }
       }
@@ -57,7 +58,7 @@ export default class CustomActions extends Component {
   //get the location of the user with GPS
   getLocation = async () => {
     try {
-      const { status } = await Permissions.askAsync(Permissions.LOCATION_FOREGROUND);
+      const { status } = await Location.requestForegroundPermissionsAsync();
       if (status === "granted") {
         const result = await Location.getCurrentPositionAsync(
           {}
