@@ -3,9 +3,9 @@ import { View, Text, TextInput, ImageBackground, StyleSheet, TouchableOpacity } 
 
 const backgroundColors ={
   black: { backgroundColor: "#090C08" },
-  purple: { backgroundColor: "#a97cb0" },
-  blue: { backgroundColor: "#7c92b0" },
-  green: { backgroundColor: "#aeb07c" }
+  purple: { backgroundColor: "#f3caee" },
+  blue: { backgroundColor: "#404994" },
+  green: { backgroundColor: "#B7D5CF" }
 }
 export default class Start extends Component {
   // add name and color to the state
