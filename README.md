@@ -68,3 +68,8 @@ Technologies being used:
     "react-native-safe-area-context": "4.4.1",
     "react-native-screens": "~3.18.0",
     "react-navigation": "^4.4.4"
+
+## Screenshots
+
+![Screenshot1](assets/screenshot1.jpeg)
+![Screenshot2](assets/screenshot2.jpeg)
